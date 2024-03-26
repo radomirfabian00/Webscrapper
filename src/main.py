@@ -1,10 +1,7 @@
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-import sys
 import re
-
-sys.path.append("C:/Users/Vanguard/AppData/Local/Packages/PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0/LocalCache/local-packages/Python312/site-packages")
 
 HEADER = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36'}
 
