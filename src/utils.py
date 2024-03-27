@@ -9,7 +9,11 @@ def get_project_root() -> Path:
 
 
 def get_logs_path() -> Path:
-    return Path(get_project_root() / 'logs')
+    if Path(get_project_root() / 'raw').is_dir():
+        return Path(get_project_root() / 'raw')
+    else:
+        Path.mkdir(Path(get_project_root() / 'raw'),parents=True,exist_ok=True)
+        return Path(get_project_root() / 'raw')
 
 
 def get_current_date_hour() -> str:

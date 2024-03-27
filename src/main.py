@@ -108,21 +108,17 @@ def main():
             except Exception as error:
                 print(f"Failed to append to addresses: {error}")
 
-    addresses = cleanse_addresses(addresses) # Cleanse address in addresses
     # Cleaning?
+    addresses = cleanse_addresses(addresses)
     addresses = remove_commas(addresses)
-    print(addresses)
     addresses = remove_non_addresses(addresses)
-    print(addresses)
     logger(addresses)  # Log addresses into logs folder
 
 
 if __name__ == "__main__":
     """
     Set CONFIG to True if you have installed libraries and still receive missing libraries error.
-    These should normally be set in System Environment Path, however I still had issues even so.
-    Fallback Method: 
-    Upon getting ImportError, program will wait 10 seconds to confirm Automatic Path Setting. Break out to stop.
+    These should normally be set in System Environment Path, however I still had issues.
     NOTE: The Path Setting is not a permanent change to the system. or at least, I guess so.
     """
     CONFIG = False
@@ -131,7 +127,8 @@ if __name__ == "__main__":
     except ImportError as e:
         # warnings.warn(f"\n{e}\n")
         print("ImportError detected")
-        decision = input("Do you want the program to automatically set it up for you? Y/N: ")
+        #decision = input("Do you want the program to automatically set it up for you? Y/N: ")
+        decision = 'y'
         if decision.lower() in ['y', 'ye', 'yes']:
             CONFIG = True
             append_local_packages_to_path(CONFIG)
