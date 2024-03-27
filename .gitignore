@@ -2,3 +2,4 @@
 /src/websites.parquet
 .idea
 /logs/*
+__pycache__
