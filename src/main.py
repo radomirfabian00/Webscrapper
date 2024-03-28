@@ -11,11 +11,16 @@ from bs4 import BeautifulSoup
 from utils import *
 
 CURRENT_DATE = get_current_date_hour()
+
+# Auto assign pool of workers to maximum CPU cores.
+# You can limit the amount by either inserting a manual number(MAX_WORKERS = 4)
+# Or by dividing cpu_count ( MAX_WORKERS = os.cpu.count()/2 )
 MAX_WORKERS = os.cpu_count()
 
 # Header will serve as header parameter for requests
 HEADER = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36'}
+
 
 @catch_errors
 def logger(data, dir='raw') -> TextIO:
@@ -26,10 +31,10 @@ def logger(data, dir='raw') -> TextIO:
     :type return: Will return location of the file as str object
     """
     logs = get_logs_path(dir)
-    file = get_filename(logs,CURRENT_DATE)
+    file = get_filename(logs, CURRENT_DATE)
     with open(file, "a") as file:
         for address in data:
-            file.write(address + '\n')
+            file.write(f"{address}\n")
     file.close()
     print(f"Results have been saved to {file}")
     return file
@@ -43,6 +48,7 @@ def grab_info(url) -> TextIO:
     :return: Returns the address value scrapped from the url
     :type return: string
     """
+
     def runtime_cleaner(addresses: list):
         cleaned_addresses = []
         pattern = r"[0-9]+ ([A-Za-z]+( [A-Za-z]+)+) [0-9]+"
@@ -55,6 +61,7 @@ def grab_info(url) -> TextIO:
             else:
                 pass
         return cleaned_addresses
+
     with requests.Session() as session:
         response = session.get(url, headers=HEADER, timeout=(2, 2))
         soup = BeautifulSoup(response.text, "html.parser")
@@ -64,18 +71,22 @@ def grab_info(url) -> TextIO:
         address = [element.get_text(separator=' ', strip=True) for element in address_elements]
         logger(address, 'raw')  # Log into dir raw
         address = runtime_cleaner(address)
-        logger(address,'data')
+        logger(address, 'data')
         return address
+
 
 def process_row(row):
     url = "https://" + row['domain']
     address_info = grab_info(url)  # Replace grab_info with your actual function
     return address_info
 
+
 def main():
     df = pd.read_parquet('websites.parquet')  # Read addresses from .parquet file
-    # print(df) - Display the .parquet file, uncomment if needed
-    df = df.head(200)  # Uncomment this line to limit the sites that will be scrapped
+    # print(df) - Display the .parquet file
+
+    # Uncomment this line to limit the sites that will be scrapped
+    # df = df.head(200)
 
     # Parse the .parquet file using Pandas (Requires FastParser lib)
     # Now uses Multithreading for scrapping multiple websites in parallel
@@ -83,10 +94,11 @@ def main():
         futures = [executor.submit(process_row, row) for _, row in df.iterrows()]
         concurrent.futures.wait(futures)
 
+
 if __name__ == "__main__":
     start_time = time.time()
     main()
     end_time = time.time()
     execution_time = end_time - start_time
-    formatted_execution_time = "{:.2f}".format(execution_time) # We only want with 2 decimals
+    formatted_execution_time = "{:.2f}".format(execution_time)  # We only want with 2 decimals
     print(f"Execution time: {formatted_execution_time} seconds.")
