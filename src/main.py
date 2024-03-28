@@ -8,7 +8,6 @@ from bs4 import BeautifulSoup
 
 from utils import *
 
-LOGS = get_logs_path()
 CURRENT_DATE = get_current_date_hour()
 
 # Header will serve as header parameter for requests
@@ -17,16 +16,16 @@ HEADER = {
 
 
 @catch_errors
-def logger(data) -> TextIO:
+def logger(data, dir='raw') -> TextIO:
     """
     Logging will serve for tracking progress and training regex (manually)
     Could be used to fuel Machine Learning into recognizing addresses,
     As recognizing addresses is the greatest problem currently.
-
     :type return: Will return location of the file as str object
     """
-    file = get_filename()
-    with open(file, "w") as file:
+    logs = get_logs_path(dir)
+    file = get_filename(logs,CURRENT_DATE)
+    with open(file, "a") as file:
         for address in data:
             file.write(address + '\n')
     file.close()
@@ -49,6 +48,7 @@ def grab_info(url) -> TextIO:
                            soup.find_all('address') + \
                            soup.find_all(class_=['address', 'vcard', 'contact-text'])
         address = [element.get_text(separator=' ', strip=True) for element in address_elements]
+        logger(address, 'raw') # Log into dir raw
         return address
 
 
@@ -65,7 +65,7 @@ def cleanse_addresses(addresses: list) -> list:
         address = str(address[0])  # Convert passed argument from a list element to a string
         match = re.search(pattern, address)  # Use regex to find the matched part of the address
         if match:
-            return match.group(1).strip()  # Extract the matched part (group 1) and remove leading/trailing whitespace
+            return match.group(0).strip()  # Extract the matched part (group 1) and remove leading/trailing whitespace
         else:
             return address  # Return the original address if no match is found
 
@@ -79,14 +79,13 @@ def remove_commas(addresses: list) -> list:
     return cleansed_address
 
 
-
 def remove_non_addresses(addresses: list) -> list:  # TODO
     cleansed_addresses = []
     pattern = r"[0-9]+ ([A-Za-z]+( [A-Za-z]+)+) ([A-Za-z0-9]+( [A-Za-z0-9]+)+)"
     for address in addresses:
         match = re.search(pattern, address)  # Use regex to find the matched part of the address
         if match:
-            cleansed_addresses.append(address)
+            cleansed_addresses.append(match.group(0))
         else:
             pass
     return cleansed_addresses
@@ -95,13 +94,12 @@ def remove_non_addresses(addresses: list) -> list:  # TODO
 
 def main():
     addresses = []  # Initialize addresses as empty array, will be used for storing address values
-
-    df = pd.read_parquet('websites.parquet') # Read addresses from .parquet file
-    df = df.head(150) # Uncomment this line to limit the sites that will be scrapped
-
     # print(df) - Display the .parquet file, uncomment if needed
 
-    # Parse the .parquet file using Pandas (Requires PyArrow, FastParser libraries)
+    df = pd.read_parquet('websites.parquet')  # Read addresses from .parquet file
+    df = df.head(50)  # Uncomment this line to limit the sites that will be scrapped
+
+    # Parse the .parquet file using Pandas (Requires FastParser lib)
     for _, row in df.iterrows():
         url = "https://" + row['domain']
         address_info = grab_info(url)
@@ -116,7 +114,7 @@ def main():
     addresses = cleanse_addresses(addresses)
     addresses = remove_commas(addresses)
     addresses = remove_non_addresses(addresses)
-    logger(addresses)  # Log addresses into logs folder
+    logger(addresses,'data')  # Log addresses into data dir
 
 
 if __name__ == "__main__":
