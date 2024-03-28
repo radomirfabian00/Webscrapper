@@ -1,6 +1,5 @@
 import datetime
 import warnings
-import re
 from pathlib import Path
 
 

@@ -2,14 +2,18 @@
 from typing import TextIO
 
 import pandas as pd
+import re
 import requests
 from bs4 import BeautifulSoup
 
-from configuration import *
 from utils import *
 
 LOGS = get_logs_path()
 CURRENT_DATE = get_current_date_hour()
+
+# Header will serve as header parameter for requests
+HEADER = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36'}
 
 
 @catch_errors
@@ -116,24 +120,4 @@ def main():
 
 
 if __name__ == "__main__":
-    """
-    Set CONFIG to True if you have installed libraries and still receive missing libraries error.
-    These should normally be set in System Environment Path, however I still had issues.
-    NOTE: The Path Setting is not a permanent change to the system. or at least, I guess so.
-    """
-    CONFIG = False
-    try:
-        main()
-    except ImportError as e:
-        # warnings.warn(f"\n{e}\n")
-        print("ImportError detected")
-        #decision = input("Do you want the program to automatically set it up for you? Y/N: ")
-        decision = 'y'
-        if decision.lower() in ['y', 'ye', 'yes']:
-            CONFIG = True
-            append_local_packages_to_path(CONFIG)
-        else:
-            CONFIG = False
-            print("Automatic Setup Canceled")
-        print("Resuming execution...")
-        main()
+    main()
