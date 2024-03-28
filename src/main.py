@@ -28,7 +28,9 @@ def logger(data, dir='raw') -> TextIO:
     Logging will serve for tracking progress and training regex (manually)
     Could be used to fuel Machine Learning into recognizing addresses,
     As recognizing addresses is the greatest problem currently.
-    :type return: Will return location of the file as str object
+    :param data: The data that will be logged
+    :param dir: name of the folder it should place logs in
+    :type return: Will return location of the file as TextIO
     """
     logs = get_logs_path(dir)
     file = get_filename(logs, CURRENT_DATE)
@@ -77,7 +79,7 @@ def grab_info(url) -> TextIO:
 
 def process_row(row):
     url = "https://" + row['domain']
-    address_info = grab_info(url)  # Replace grab_info with your actual function
+    address_info = grab_info(url)
     return address_info
 
 
