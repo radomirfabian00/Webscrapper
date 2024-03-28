@@ -37,5 +37,7 @@ def catch_errors(function):
         try:
             return function(*args, **kwargs)
         except Exception as e:
-            warnings.warn(f"Error in function {(function.__name__).upper()}: {e}")
+            # Uncomment warnings.warn to receive warnings for functions that raised an error, along with its error.
+            pass
+            # warnings.warn(f"Error in function {(function.__name__).upper()}: {e}")
     return handler

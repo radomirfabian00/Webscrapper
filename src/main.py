@@ -1,4 +1,4 @@
-
+import time
 from typing import TextIO
 
 import pandas as pd
@@ -75,7 +75,7 @@ def process_row(row):
 def main():
     df = pd.read_parquet('websites.parquet')  # Read addresses from .parquet file
     # print(df) - Display the .parquet file, uncomment if needed
-    df = df.head(20)  # Uncomment this line to limit the sites that will be scrapped
+    df = df.head(200)  # Uncomment this line to limit the sites that will be scrapped
 
     # Parse the .parquet file using Pandas (Requires FastParser lib)
     # Now uses Multithreading for scrapping multiple websites in parallel
@@ -84,4 +84,9 @@ def main():
         concurrent.futures.wait(futures)
 
 if __name__ == "__main__":
+    start_time = time.time()
     main()
+    end_time = time.time()
+    execution_time = end_time - start_time
+    formatted_execution_time = "{:.2f}".format(execution_time) # We only want with 2 decimals
+    print(f"Execution time: {formatted_execution_time} seconds.")
