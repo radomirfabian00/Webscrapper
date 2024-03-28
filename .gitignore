@@ -1,6 +1,6 @@
 /src/test.py
 /src/websites.parquet
 .idea
-/logs/*
 /data/*
+/raw/*
 src/__pycache__
